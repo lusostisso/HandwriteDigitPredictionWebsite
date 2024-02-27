@@ -1,0 +1,115 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desenho</title>
+    <style>
+    
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .buttons-container {
+            display: flex;
+        }
+
+        .buttons-container button {
+            border-radius: 10px;
+            padding: 10px 20px;
+            margin: 15px 10px;
+        }
+
+        #predict-button {
+            background-color: rgb(10, 157, 10);
+            color: white;
+        }
+
+    </style>
+</head>
+
+
+<body>
+    <div class="drawing-box">
+        <canvas id="canvas" width="200" height="200"></canvas>
+    </div>
+
+    <div class="buttons-container">
+        <button id="clear-button">Limpar</button>
+        <button id="predict-button">Predizer</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = 'white'; 
+        ctx.lineWidth = 5;
+
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            [lastX, lastY] = [e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop];
+        });
+
+        document.getElementById('clear-button').addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = 'white'; 
+            ctx.lineWidth = 5;
+
+        });
+
+        document.getElementById('predict-button').addEventListener('click', () => {
+
+            var image = canvas.toDataURL('image/png');
+          
+            // Enviar os dados da imagem para o servidor Python
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ image: image }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            const newX = e.clientX - canvas.offsetLeft;
+            const newY = e.clientY - canvas.offsetTop;
+
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(newX, newY);
+            ctx.stroke();
+
+            [lastX, lastY] = [newX, newY];
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDrawing = false;
+        });
+    </script>
+</body>
+</html>
