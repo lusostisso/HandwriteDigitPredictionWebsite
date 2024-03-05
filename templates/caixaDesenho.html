@@ -14,6 +14,10 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
+            font-family: Arial, sans-serif;
+            padding: 0;
+            background-color: #f0f0f0;
+        
         }
 
         .buttons-container {
@@ -24,6 +28,14 @@
             border-radius: 10px;
             padding: 10px 20px;
             margin: 15px 10px;
+        }
+        h1 {
+            color: #333;
+        }
+
+        h4 {
+            color: #666;
+            margin-bottom: 30px;
         }
 
         #predict-button {
@@ -36,6 +48,8 @@
 
 
 <body>
+    <h1>Desenhe um dígito</h1>
+    <h4>Modelo de rede neural teinado a partir do MNIST Dataset</h4>
     <div class="drawing-box">
         <canvas id="canvas" width="200" height="200"></canvas>
     </div>
@@ -44,6 +58,8 @@
         <button id="clear-button">Limpar</button>
         <button id="predict-button">Predizer</button>
     </div>
+
+    <p id="prediction"></p>
 
     <script>
         const canvas = document.getElementById('canvas');
@@ -71,6 +87,8 @@
 
         });
 
+
+
         document.getElementById('predict-button').addEventListener('click', () => {
 
             var image = canvas.toDataURL('image/png');
@@ -85,11 +103,8 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log(data);
+                document.getElementById('prediction').innerText = 'Prediction: ' + data.prediction;
             })
-            .catch(error => {
-                console.error('Error:', error);
-            });
         });
 
         

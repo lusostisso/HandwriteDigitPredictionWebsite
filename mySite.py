@@ -22,22 +22,28 @@ def homepage():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    data = request.json
+    data = request.get_json()
     image = data['image']
-
     image = base64.b64decode(image.split(',')[1])
     image = Image.open(io.BytesIO(image)).convert('L')
     
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5,), (0.5,)),
+        transforms.Resize(28)
+    ])
+    
     image = transform(image)
-    image = image.unsqueeze(0)
-    helper.imshow(image[0].numpy().squeeze(), cmap='gray')
-
+    #image = image.unsqueeze(0)
+    image = image.view(image.shape[0], -1)
+   
+    
     with torch.no_grad():
         pred = model(image)
         pred = pred.argmax(1)
 
         return jsonify({
-            'prediction': pred.item()
+        'prediction': pred.item()
         })
 
 if __name__ == "__main__":
