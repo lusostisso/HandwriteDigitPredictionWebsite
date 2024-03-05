@@ -13,12 +13,7 @@ def carregar_modelo():
     )
 
     model.load_state_dict(torch.load('pesos_do_modelo.pth'))
+    
     model.eval()
     
-    transform = transforms.Compose([
-        transforms.Resize((28,28)),
-        transforms.Normalize((0.5,), (0.5,)),
-        transforms.ToTensor()
-    ])
-
-    return model, transform
+    return model
